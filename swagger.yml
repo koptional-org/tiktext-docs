@@ -1,0 +1,731 @@
+openapi: 3.0.0
+info:
+  title: TikText API Documentation
+  description: A secure REST API for the TikText apps
+  version: 0.0.1
+  contact:
+    name: "Jack Considine"
+    email: "jack@koptional.com"
+servers:
+  - url: https://tiktext.com/api
+
+# 1) Define the key name and location
+components:
+  schemas:
+    PaginationData:
+      properties:
+        current_page:
+          type: integer
+          format: int64
+          minimum: 1
+        first_page_url:
+          type: string
+        from:
+          type: integer
+          format: int64
+          minimum: 1
+        last_page:
+          type: integer
+          format: int64
+          minimum: 1
+        last_page_url:
+          type: string
+        next_page_url:
+          type: string
+        path:
+          type: string
+        per_page:
+          type: integer
+          format: int64
+          minimum: 1
+        prev_page_url:
+          type: string
+        to:
+          type: integer
+          format: int64
+        total:
+          type: integer
+          format: int64
+    influencer: 
+      properties:
+        email:
+          type: string
+          example: jack@koptional.com
+        profession: 
+          type: string
+          example: College Counselor
+        bio:
+          type: string
+          example: Hi, I’m Paul George. I will be your college counsellor. Neuro-linguistic programming is a pseudoscientific approach to communication, personal development, and psychotherapy created by Richard Bandler and John Grinder in United States in the 1970s
+
+        personal_phone:
+          type: string
+          example: "+18476438892"
+        twilio_phone_number:
+          type: string
+          example: "+18476438891"
+        twilio_phone_id:
+          type: string
+          example: "sid_askdfjlkdsflkdsf"
+        profile_image_url:
+          type: string
+          example: "https://via.placeholder.com/400x400"
+      required: [email]
+    Custom-Field:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        title: 
+          example: College
+          type: string
+          
+        question: 
+          type: string
+          example: What college are you studying in
+        influencer_id:
+          type: number
+          format: int64
+          example: 23
+      required: [title, question, influencer_id, created_at, updated_at]
+            
+    Stripe-Plan:
+      required: ["id", "object", "active", "amount", "billing_scheme", "created", "livemode", "product"]
+      properties:
+        "id":
+          type: string
+          example: "price_1HgZuI2eZvKYlo2Cn2NO2r6W"
+        "object": 
+          type: string
+          example: "plan"
+          enum: ["plan"]
+        
+        "active": 
+          type: boolean
+          example: true
+        
+        "amount": 
+          type: number
+          format: int64
+          example: 500
+          
+        "amount_decimal":
+          type: number
+          format: int64
+          example: 500
+        "billing_scheme": 
+          type: string
+          example: "per_unit"
+          enum: ["per_unit", "tiered"]
+        
+        "created": 
+          type: number
+          format: int64
+          example: 1603734898
+          
+        "currency": 
+          type: string
+          example: "usd"
+          enum: ["usd"]
+        "interval": 
+          type: string
+          example: "month"
+          enum: ["month", "year"]
+        "livemode": 
+          type: boolean
+          example: false
+        "metadata": 
+          type: object
+          example: {}
+        
+        "nickname": 
+          type: string
+          example: "My Plan"
+          
+        "product": 
+          type: string
+          example: "prod_IH8AlVWwXSGxTw"
+        "trial_period_days": 
+          type: number
+          format: int64
+          example: 30
+    Message:
+      required: [created_at, updated_at, chat_id, text, direction]
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        chat_id:
+          type: number
+          format: int64
+          example: 1231
+        text: 
+          type: string
+          example: "Howdy!"
+        direction:
+          type: string
+          enum: ["to_influencer", "from_influencer"]
+          example: "from_influencer"
+    Chats:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        influencer_id:
+          type: number
+          format: int64
+          example: 233
+        contact_id:
+          type: number
+          format: int64
+          example: 123
+        last_message:
+          $ref: "#/components/schemas/Message"
+      required: [influencer_id, contact_id, last_message, created_at, updated_at]
+    
+    InfluencerContact: 
+      description: This is a contact, but the server will return the contacts plan_id relative to the influencer. So we treat this schema differently than the contact endpoints
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        email:
+          type: string
+          example: "biggestFan@gmail.com"
+        full_name:
+          type: string
+          example: "Arthur Lemur"
+        phone_number:
+          type: string
+          example: "+18476448892"
+        plan_id: 
+          type: string
+          example: "plan_askdjfihasfdkhaskjd"
+      required:
+        - full_name
+          phone_number
+          plan_id
+          email
+          created_at
+          updated_at
+    
+    DashboardOverview:
+      type: object
+      properties:
+        net_earnings:
+          type: number
+          format: int64
+          description: The number of \*cents\* that this influencer has earned
+          example: 5000000
+        num_subscribers:
+          type: number
+          format: int64
+          example: 200
+        num_messages:
+          type: number
+          format: int64
+          example: 200
+        num_chats:
+          type: number
+          format: int64
+          example: 200
+  
+    PaymentToInfluencer:
+      description: The payments made from a contact to an influencer. Not necessarily a model but will be returned as an API 
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        stripe_id:
+          type: string
+          example: "asdufbkqiewhfasdfkln"
+        plan_id: 
+          type: string
+          example: "plan_xzmvncbqiewladsf"
+        contact:
+          $ref: '#/components/schemas/InfluencerContact'
+        amount_cents:
+          example: 2500
+          type: number
+          format: int64
+      required: [contact, amount_cents]
+paths:
+  /influencer/signup: 
+    post:
+      tags:
+        - Authentication
+      summary: Signs up an influencer 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                  password
+                  phone
+              properties:
+                email:
+                  type: string
+                  description: the influencers's email address
+                password:
+                  type: string
+                  description: The influencer's password
+                phone: 
+                  type: string
+                  description: The influencer's phone number
+      responses:
+        "200":
+          description: "A paginated list of videos"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: the 
+                  influencer:
+                    $ref: "#/components/schemas/influencer"
+                  
+  
+
+  /influencer/login:
+    post:
+      tags: 
+        - Authentication
+      summary: Authenticates User 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+                  title
+                  url
+              properties:
+                email:
+                  type: string
+                  description: the user's email address
+                password:
+                  type: string
+                  description: The user's password
+     
+          
+      responses:
+        "401":
+          description: "Invalid credentials"
+        "200":
+          description: "user profile + token"
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: the 
+                influencer:
+                  $ref: "#/components/schemas/influencer"
+
+  /influencer/logout:
+    post:
+      tags: 
+        - Authentication
+      summary: Logs a user out
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+  
+  # Token authentication
+  /influencer/profile:
+    get:
+      tags: 
+        - Profile
+      summary: Returns the auth user's profile 
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/influencer"
+    patch: 
+      tags: 
+        - Profile
+      summary: Updates the auth user's profile 
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/influencer"
+  /influencer/custom-questions:
+    get:
+      tags:
+        - Custom Questions
+      summary: Returns the custom questions associated with this influencer
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                 properties:
+                   data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/Custom-Field" 
+    post:
+      tags:
+        - Custom Questions
+      summary: Returns the custom questions associated with this influencer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+                  title
+                  url
+              properties:
+                title:
+                  type: string
+                  example: "College"
+                question:
+                  type: string
+                  example: "What college are you studying in?"
+      
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Custom-Field"
+     
+  /influencer/custom-questions/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+        description: Id of the custom question 
+    delete:
+      tags:
+        - Custom Questions
+      summary: Deletes this custom question from the influencer
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+    put:
+      tags:
+        - Custom Questions
+      summary: Returns the custom questions associated with this influencer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+                  title
+                  url
+              properties:
+                title:
+                  type: string
+                  example: "College"
+                question:
+                  type: string
+                  example: "What college are you studying in?"
+      
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Custom-Field"
+                
+                
+                
+                
+                
+  /available-sms-plans:
+    get:
+      tags: 
+        - Available SMS Plans
+      summary: Returns the global SMS plans that have been defined by the administrators
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                 properties:
+                   data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/Stripe-Plan"
+    
+  /influencer/sms-plans:
+    get:
+      tags: 
+        - Influencer SMS Plans
+      summary: Returns the influencer's subscription plans they have added to their account
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                 properties:
+                   data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/Stripe-Plan"
+    post: 
+      tags: 
+        - Influencer SMS Plans
+      summary: Adds a subscription plan to an influencer's acount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plan_id
+              properties:
+                plan_id:
+                  type: string
+                  example: "price_1HgZuI2eZvKYlo2Cn2NO2r6W"
+               
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Stripe-Plan"
+  /influencer/sms-plans/{planId}:
+    delete:
+      tags: 
+          - Influencer SMS Plans
+      summary: Adds a subscription plan to an influencer's acount
+      parameters:
+      - in: path
+        name: planId
+        schema:
+          type: string
+        required: true
+        description: Id of the plan to remove from account
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                properties:
+                  success: 
+                    type: boolean
+                    enum: [true]
+  
+  /influencer/chats:
+    get:
+      tags: 
+        - Chats
+      summary: Returns a list of chats that an influencer has started 
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                 properties:
+                   data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Chats"
+  
+  /influencer/mass-message:
+    post:
+      tags: 
+        - Influencer Messaging
+      summary: Sends a text message to each subscriber individually
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  example: "Hello Subscribers!"
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  
+  /influencer/chats/{chatId}/messages:
+    
+    parameters:
+      - in: path
+        name: chatId
+        schema:
+          type: string
+        required: true
+        description: the ID of the chat that is being messaged
+    get:
+      tags:
+        - Influencer Messaging
+      description: Fetches the messages from this chat
+      summary: Fetches the messages from this chat
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                type:
+                  object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                      
+    post:
+      tags:
+        - Influencer Messaging
+      description: Sends a message to a chat
+      summary: Sends a message to a chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  example: "Howdy!"
+      responses:
+          "200":
+            description: "Success"
+            content: 
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Message'
+   
+  /influencer/contacts:
+    get:
+      description: Returns a list of the influencer's contacts
+      
+      tags:
+        - Influencer contacts
+      summary: Returns a list of the influencer's contacts
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                type:
+                  object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InfluencerContact'
+  
+  /influencer/dashboard/overview:
+    get:
+      description: Returns the overview stats of this influencer's dashboard
+      summary: Returns the overview stats of this influencer's dashboard
+      tags:
+        - Dashboard
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardOverview'
+                      
+           
+  /influencer/dashboard/payments:
+    get:
+      description: Returns the payment list of this influencer's dashboard
+      summary: Returns the payment list of this influencer's dashboard
+      tags:
+        - Dashboard
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                type:
+                  object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentToInfluencer'
+           
+     
