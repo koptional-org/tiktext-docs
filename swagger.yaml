@@ -217,6 +217,15 @@ components:
           type: integer
           example: 32
           format: int64
+        dob:
+          type: string
+          example: "01/20/1995"
+        zip_code:
+          type: string
+          example: "78701"
+        gender:
+          type: string
+          enum: ['male', 'female', 'other']
         created_at:
           type: string
           format: date-time
