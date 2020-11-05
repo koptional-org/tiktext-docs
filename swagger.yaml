@@ -51,12 +51,24 @@ components:
         total:
           type: integer
           format: int64
+   
     influencer: 
       properties:
         id: 
           type: integer
           example: 3
           format: int64
+          
+        message_rule:
+          type: string
+          example: "everyone"
+          enum: ["everyone", "subscribers"]
+        
+        gender:
+          type: string
+          example: "male"
+          enum: ["male", "female"]
+        
         email:
           type: string
           example: jack@koptional.com
@@ -66,6 +78,19 @@ components:
         bio:
           type: string
           example: Hi, I’m Paul George. I will be your college counsellor. Neuro-linguistic programming is a pseudoscientific approach to communication, personal development, and psychotherapy created by Richard Bandler and John Grinder in United States in the 1970s
+        dob:
+          type: string
+          example: "01/20/1995"
+          description: "Format MM/DD/YYYY"
+        
+        zip:
+          type: string
+          example: "60091"
+          description: "Format NNNNN"
+        
+        marital_status:
+          type: string
+          example: "Singled"
 
         personal_phone:
           type: string
@@ -80,8 +105,65 @@ components:
           type: string
           example: "https://via.placeholder.com/400x400"
       required: [email, id]
-    Custom-Field:
+    Influencer-Request:
       properties:
+        message_rule:
+          type: string
+          example: "everyone"
+          enum: ["everyone", "subscribers"]
+        
+        gender:
+          type: string
+          example: "male"
+          enum: ["male", "female"]
+        
+        dob:
+          type: string
+          example: "01/20/1995"
+          description: "Format MM/DD/YYYY"
+        
+        zip:
+          type: string
+          example: "60091"
+          description: "Format NNNNN"
+        
+        marital_status:
+          type: string
+          example: "Singled"
+          
+        
+        
+        
+        email:
+          type: string
+          example: jack@koptional.com
+        profession: 
+          type: string
+          example: College Counselor
+        bio:
+          type: string
+          example: Hi, I’m Paul George. I will be your college counsellor. Neuro-linguistic programming is a pseudoscientific approach to communication, personal development, and psychotherapy created by Richard Bandler and John Grinder in United States in the 1970s
+        personal_phone:
+          type: string
+          example: "+18476438892"
+        twilio_phone_number:
+          type: string
+          example: "+18476438891"
+        twilio_phone_id:
+          type: string
+          example: "sid_askdfjlkdsflkdsf"
+        profile_image_url:
+          type: string
+          example: "https://via.placeholder.com/400x400"
+
+   
+   
+    Custom-Question:
+      properties:
+        id: 
+          type: integer
+          example: 32
+          format: int64
         created_at:
           type: string
           format: date-time
@@ -209,10 +291,6 @@ components:
       
       description: This is a contact, but the server will return the contacts plan_id *relative to the influencer*. So we treat this schema differently than the contact endpoints
       properties:
-        subscribed:
-          type: boolean
-          example: true
-          description: Whether this contact is subscribed TO THIS INFLUENCER
         id: 
           type: integer
           example: 32
@@ -451,7 +529,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/influencer"
+              $ref: "#/components/schemas/Influencer-Request"
       responses:
         "200":
           description: "Success"
@@ -477,7 +555,7 @@ paths:
                     type: array
                     items:
                       allOf:
-                        - $ref: "#/components/schemas/Custom-Field" 
+                        - $ref: "#/components/schemas/Custom-Question" 
     post:
       tags:
         - Custom Questions
@@ -508,7 +586,7 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: "#/components/schemas/Custom-Field"
+                $ref: "#/components/schemas/Custom-Question"
      
   /influencer/custom-questions/{id}:
     parameters:
@@ -564,7 +642,7 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: "#/components/schemas/Custom-Field"
+                $ref: "#/components/schemas/Custom-Question"
                 
                 
                 
