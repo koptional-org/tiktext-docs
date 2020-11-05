@@ -794,8 +794,12 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/InfluencerContact'
- 
+                      allOf:
+                      - $ref: '#/components/schemas/InfluencerContact'
+                      - type: object
+                        properties:
+                          plan:
+                            $ref: '#/components/schemas/Stripe-Plan'
   /influencer/contacts/{contactId}:
     parameters:
         - in: path
