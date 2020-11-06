@@ -876,6 +876,12 @@ paths:
                       - $ref: '#/components/schemas/InfluencerContact'
                       - type: object
                         properties:
+                          questions:
+                            type: array
+                            items: 
+                              $ref: "#/components/schemas/Custom-Question"
+                      - type: object
+                        properties:
                           plan:
                             $ref: '#/components/schemas/Stripe-Plan'
   /influencer/contacts/{contactId}:
@@ -900,7 +906,14 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: '#/components/schemas/InfluencerContact'
+                allOf:
+                  - $ref: '#/components/schemas/InfluencerContact'
+                  - type: object
+                    properties:
+                      questions:
+                        type: array
+                        items:  
+                          $ref: '#/components/schemas/Custom-Question'
  
   
   /influencer/dashboard/overview:
