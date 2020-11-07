@@ -51,6 +51,43 @@ components:
         total:
           type: integer
           format: int64
+    Contact:
+      properties:
+        id: 
+          type: integer
+          example: 32
+          format: int64
+        dob:
+          type: string
+          example: "01/20/1995"
+        zip_code:
+          type: string
+          example: "78701"
+        gender:
+          type: string
+          enum: ['male', 'female', 'other']
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        email:
+          type: string
+          example: "biggestFan@gmail.com"
+        full_name:
+          type: string
+          example: "Arthur Lemur"
+        phone_number:
+          type: string
+          example: "+18476448892"
+      required:
+        - full_name
+          phone_number
+          email
+          created_at
+          updated_at
+          id
    
     influencer: 
       properties:
@@ -290,38 +327,19 @@ components:
     InfluencerContact: 
       
       description: This is a contact, but the server will return the contacts plan_id *relative to the influencer*. So we treat this schema differently than the contact endpoints
-      properties:
-        id: 
-          type: integer
-          example: 32
-          format: int64
-        dob:
-          type: string
-          example: "01/20/1995"
-        zip_code:
-          type: string
-          example: "78701"
-        gender:
-          type: string
-          enum: ['male', 'female', 'other']
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        email:
-          type: string
-          example: "biggestFan@gmail.com"
-        full_name:
-          type: string
-          example: "Arthur Lemur"
-        phone_number:
-          type: string
-          example: "+18476448892"
-        plan_id: 
-          type: string
-          example: "plan_askdjfihasfdkhaskjd"
+      allOf:
+        - $ref: '#/components/schemas/Contact'
+        - type: object
+          properties:
+            plan_id: 
+              type: string
+              example: "plan_askdjfihasfdkhaskjd"
+            questions:
+              type: array
+              items: 
+                $ref: "#/components/schemas/Custom-Question"
+            plan:
+              $ref: '#/components/schemas/Stripe-Plan'
       required:
         - full_name
           phone_number
@@ -376,7 +394,47 @@ components:
           format: int64
       required: [contact, amount_cents]
 paths:
-
+  /influencers:
+    get:
+      tags:
+       - Public
+      responses:
+          "200":
+            description: "A paginated list of Influencers"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/influencer"
+  /influencers/{influencerId}:
+    parameters:
+        - in: path
+          name: influencerId
+          schema:
+            type: string
+          required: true
+          description: Id of the influencer who is being fetched
+    get:
+      tags:
+       - Public
+      responses:
+          "200":
+            description: "A paginated list of Influencers"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/influencer"
+  
+  
   /influencers/{influencerId}/plans:
     get:
       tags:
@@ -404,11 +462,89 @@ paths:
                       #     type: string
                       #     example
         
-        
+     
+     
+  /contacts/login:
+    post:
+      description: Authenticates a contact user
+      summary: Authenticates a contact user
+      tags:
+        - Contact Authentication
+      responses:
+        "200":
+            description: "The authenticated contact"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    user:
+                      $ref: "#/components/schemas/Contact"
+                    token:
+                        type: string
+                        description: "A JWT token"
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        "401":
+          description: "Invalid credentials"
+
+
+
+  /contacts/signup:
+    post: 
+      description: Creates a new contact user account and authenticates as that user
+      summary: Creates a new contact user account and authenticates as that user 
+      tags:
+        - Contact Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                  password
+                  phone
+                  name
+              properties:
+                email:
+                  example: "contact@koptional.com"
+                  type: string
+                  description: the contact's email address
+                name:
+                  example: "Arthur Lemur"
+                  type: string
+                  description: the contact's full name
+                password:
+                  example: "testing123#"
+                  type: string
+                  description: The influencer's password
+                phone: 
+                  example: "+18476448892"
+                  type: string
+                  description: The influencer's phone number
+      responses:
+        "200":
+            description: "The authenticated contact"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    user:
+                      $ref: "#/components/schemas/Contact"
+                    token:
+                        type: string
+                        description: "A JWT token"
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                        
+                  
+
+
   /influencer/signup: 
     post:
       tags:
-        - Authentication
+        - Influencer Authentication
       summary: Signs up an influencer 
       requestBody:
         required: true
@@ -449,7 +585,7 @@ paths:
   /influencer/login:
     post:
       tags: 
-        - Authentication
+        - Influencer Authentication
       summary: Authenticates User 
       requestBody:
         required: true
@@ -489,7 +625,7 @@ paths:
   /influencer/logout:
     post:
       tags: 
-        - Authentication
+        - Influencer Authentication
       summary: Logs a user out
       responses:
         "200":
@@ -874,16 +1010,6 @@ paths:
                     items:
                       allOf:
                       - $ref: '#/components/schemas/InfluencerContact'
-                      - type: object
-                        properties:
-                          questions:
-                            type: array
-                            items: 
-                              $ref: "#/components/schemas/Custom-Question"
-                      - type: object
-                        properties:
-                          plan:
-                            $ref: '#/components/schemas/Stripe-Plan'
   /influencer/contacts/{contactId}:
     parameters:
         - in: path
