@@ -7,7 +7,7 @@ info:
     name: "Jack Considine"
     email: "jack@koptional.com"
 servers:
-  - url: https://tiktext.com/api
+  - url: https://mytexty.com/api
 
 # 1) Define the key name and location
 components:
