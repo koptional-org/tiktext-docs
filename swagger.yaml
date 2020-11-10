@@ -539,8 +539,24 @@ paths:
                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
                         
                   
-
-
+  /contacts/me:
+    get:
+      security:
+        - bearerAuth: []
+      description: Returns the contact account of the authenticated user
+      summary:  Returns the contact account of the authenticated user
+      tags:
+        - Contact Authentication
+      responses:
+        "200":
+            description: "The authenticated contact"
+            content:
+              application/json:
+                schema:
+                  $ref:  "#/components/schemas/Contact"
+                
+        "401":
+          description: "No authenticated contact"
   /influencer/signup: 
     post:
       tags:
