@@ -427,12 +427,8 @@ paths:
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/influencer"
+                  $ref: "#/components/schemas/influencer"
+                        
   
   
   /influencers/{influencerId}/plans:
