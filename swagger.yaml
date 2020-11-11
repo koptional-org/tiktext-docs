@@ -95,7 +95,10 @@ components:
           type: integer
           example: 3
           format: int64
-          
+        full_name:
+          type: string
+          example: "Elon Musk"
+        
         message_rule:
           type: string
           example: "everyone"
@@ -144,6 +147,9 @@ components:
       required: [email, id]
     Influencer-Request:
       properties:
+        full_name:
+          type: string
+          example: "Elon Musk"
         message_rule:
           type: string
           example: "everyone"
