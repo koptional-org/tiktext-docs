@@ -453,14 +453,11 @@ paths:
               application/json:
                 schema:
                   type: object
-                  allOf:
-                    - $ref: "#/components/schemas/Stripe-Plan"
-                    - type: object
-                      # in case we eventually need more attributes
-                      # properties:
-                      #   description: 
-                      #     type: string
-                      #     example
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/Stripe-Plan"
         
      
      
