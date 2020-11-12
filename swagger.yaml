@@ -1,13 +1,13 @@
 openapi: 3.0.0
 info:
-  title: TikText API Documentation
-  description: A secure REST API for the TikText apps
+  title: MyTexty API Documentation
+  description: A secure REST API for the MyTexty app suite
   version: 0.0.1
   contact:
     name: "Jack Considine"
     email: "jack@koptional.com"
 servers:
-  - url: https://mytexty.com/api
+  - url: https://mytexty.koptional.com/api
 
 # 1) Define the key name and location
 components:
@@ -400,6 +400,30 @@ components:
           format: int64
       required: [contact, amount_cents]
 paths:
+
+  /twilio-webhook/{influencer_id}:
+    parameters:
+        - in: path
+          name: influencer_id
+          schema:
+            type: string
+          required: true
+          description: The ID of the influencer that has received a message. This is determined when the webhook is SET as the phone is initially allocated and the webhook created
+    post:
+      tags:
+       - Webhooks
+      summary: Receives webhook requests from Twilio as messages are received via SMS
+      description: This will create the message on the backend and send a push notification to the influencer on file 
+      responses:
+        "200":
+          description: "An empty affirmation that the message was recorded"
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum: ['']
+            
+  
   /influencers:
     get:
       tags:
@@ -556,6 +580,138 @@ paths:
                 
         "401":
           description: "No authenticated contact"
+  
+  
+  /contacts/billing:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Contact Subscriptions
+      description: "Updates the contacts payment method, of which there is only one at any given time"
+      summary: "Updates the contacts payment method"
+      
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stripe_token
+                  card_brand
+                  card_last_4
+              properties:
+                stripe_token:
+                  type: string
+                  description: The reusable stripe token representing a customer's payment method
+                  example: 'tok_usasdkjflxzcviuxcv'
+                card_brand:
+                  type: string
+                  description: The brand of the payment method for recognition purposes
+                  example: "visa"
+                card_last_4:
+                  type: string
+                  description: The last 4 digits of the payment method for recognition purposes
+                  example: "6919"
+                
+                  
+      
+      responses:
+        "200":
+          description: A success message
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+  
+  /contacts/subscriptions:
+    
+    get:
+      security:
+        - bearerAuth: []
+      tags: 
+        - Contact Subscriptions
+      description: Returns a list of the influencers this contact currently subscribes to, possibly along wiht some subscription information
+      summary: Returns a list of the influencers this contact currently subscribes to
+      
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/influencer"
+              
+  /contacts/subscriptions/{influencerId}:
+    post:
+      tags:
+        - Contact Subscriptions
+      parameters:
+      - in: path
+        name: influencerId
+        schema:
+          type: string
+        required: true
+        description: Id of the influencer whose plan we're subscribing to
+        
+      description: Subscribes to a plan (requires payment info to be attached to the contact)
+      summary: Subscribes to a plan (requires payment info to be attached to the contact)
+      responses:
+        "400":
+          description: "No payment information"
+        "200":
+          description: "user profile + token"
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: the 
+                influencer:
+                  $ref: "#/components/schemas/influencer"
+                  
+    delete:
+      tags:
+        - Contact Subscriptions
+      parameters:
+      - in: path
+        name: influencerId
+        schema:
+          type: string
+        required: true
+        description: Id of the influencer whose plan we're unsubscribing from
+        
+      description: Unsubscribes from this influencers plan 
+      summary: Unsubscribes from this influencers plan  (Must be subscribed to the plan in the first place)
+      responses:
+        "400":
+          description: "Not subscribed to this influencer"
+        "200":
+          description: "user profile + token"
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  enum: [true]
+
+  
   /influencer/signup: 
     post:
       tags:
@@ -583,7 +739,7 @@ paths:
                   description: The influencer's phone number
       responses:
         "200":
-          description: "A paginated list of videos"
+          description: "A signup token with the influencer"
           content:
             application/json:
               schema:
@@ -688,6 +844,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/influencer"
+
+  /influencer/push-notification:
+    put:
+      tags:
+        - Push Notifications
+      summary: Accepts a push notification token from the frontend which will be associated with the influencer's account 
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - push_notification_token
+              properties:
+                push_notification_token:
+                  type: string
+                  example: "dmYENnyg70jIlSRi7YSo4v:APA91bFQ0yXmSeS_BXGE8dXBgkQ2tcVlTqRTf8ozM_D4v_ARmzUeTLJtegIqTEU1Oq7cXoLjO_xYdhNWC11sPg2GQqGJb8qu7PSBp8DTY43LFZ6XClX837EDrIi-x-ZR2eEvJtZca9v7"
+                
+      
+      
+      responses:
+        "200":
+          description: "Success"
+          content: 
+            application/json:
+              schema:
+                 properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+
   /influencer/custom-questions:
     get:
       tags:
