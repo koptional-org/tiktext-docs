@@ -81,13 +81,22 @@ components:
         phone_number:
           type: string
           example: "+18476448892"
+        has_card:
+          type: boolean
+          example: true
+        stripe_customer_id:
+          type: string
+          example: cus_INYzkQuqeYvQWT
+          
       required:
         - full_name
           phone_number
           email
           created_at
           updated_at
+          has_card
           id
+          stripe_customer_id
    
     influencer: 
       properties:
@@ -227,65 +236,41 @@ components:
       required: [title, question, influencer_id, created_at, updated_at]
             
     Stripe-Plan:
-      required: ["id", "object", "active", "amount", "billing_scheme", "created", "livemode", "product"]
+      required: ["id", "price_id", "product_id", "name", "description", "amount"]
       properties:
         "id":
+          type: number
+          format: int64
+          example: 33
+          
+        price_id: 
           type: string
-          example: "price_1HgZuI2eZvKYlo2Cn2NO2r6W"
-        "object": 
+          example: "price_1Hl7AXGcPac2E5DndUfHl0KA"
+          
+        product_id: 
           type: string
-          example: "plan"
-          enum: ["plan"]
+          example: "prod_IH8AlVWwXSGxTw"
         
-        "active": 
-          type: boolean
-          example: true
+        name: 
+          type: string
+          example: "Basic (30 Messages)"
+        description:
+          type: string
+          example: "Faster response time, special offers, early access to updates"
+    
         
         "amount": 
           type: number
           format: int64
+          description: This amount is in *cents* not dollars
           example: 500
           
-        "amount_decimal":
-          type: number
-          format: int64
-          example: 500
-        "billing_scheme": 
-          type: string
-          example: "per_unit"
-          enum: ["per_unit", "tiered"]
+
         
-        "created": 
-          type: number
-          format: int64
-          example: 1603734898
-          
-        "currency": 
-          type: string
-          example: "usd"
-          enum: ["usd"]
-        "interval": 
-          type: string
-          example: "month"
-          enum: ["month", "year"]
-        "livemode": 
-          type: boolean
-          example: false
-        "metadata": 
-          type: object
-          example: {}
         
-        "nickname": 
-          type: string
-          example: "My Plan"
+        
           
-        "product": 
-          type: string
-          example: "prod_IH8AlVWwXSGxTw"
-        "trial_period_days": 
-          type: number
-          format: int64
-          example: 30
+        
     Message:
       required: [id, created_at, updated_at, contact_id, text, direction]
       properties:
@@ -474,7 +459,7 @@ paths:
           description: Id of the influencer whose plans we're fetching
       responses:
           "200":
-            description: "A paginated list of videos"
+            description: "A paginated list of plans an influencer plan offerings"
             content:
               application/json:
                 schema:
@@ -656,6 +641,8 @@ paths:
               
   /contacts/subscriptions/{influencerId}:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - Contact Subscriptions
       parameters:
@@ -685,6 +672,8 @@ paths:
                   $ref: "#/components/schemas/influencer"
                   
     delete:
+      security:
+        - bearerAuth: []
       tags:
         - Contact Subscriptions
       parameters:
@@ -847,6 +836,8 @@ paths:
 
   /influencer/push-notification:
     put:
+      security:
+        - bearerAuth: []
       tags:
         - Push Notifications
       summary: Accepts a push notification token from the frontend which will be associated with the influencer's account 
