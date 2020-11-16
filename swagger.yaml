@@ -832,6 +832,49 @@ paths:
                     type: boolean
                     enum: [true]
   
+  /influencer/available-phones:
+    parameters:
+      - in: query
+        name: count
+        required: false
+        description: "An optional count for how many available phones to pull. Defaults to 10"
+        schema:
+          type: number
+      - in: query
+        name: area_code
+        required: false
+        example: "847"
+        description: "An optional 3 digit number to search area codes by"
+        schema:
+          type: number
+    get:
+      tags:
+        - Phone Allocation
+      summary: Lists phone numbers that are available to be allocated to the influencer
+      description: Lists phone numbers that are available to be allocated to the influencer
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    friendly_name:
+                      type: string
+                      example: "(847) 719-6508"
+                      description: The standarad readable format for a phone number
+                    number:
+                      type: string
+                      example:  "+18477196508"
+                      description: "The standard machine format for a phone number"
+                  
+      
+  
   # Token authentication
   /influencer/profile:
     get:
