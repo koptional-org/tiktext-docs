@@ -104,7 +104,10 @@ components:
           type: integer
           example: 3
           format: int64
-        full_name:
+        has_onboarded:
+          type: boolean
+          example: false
+        name:
           type: string
           example: "Elon Musk"
         
@@ -153,15 +156,16 @@ components:
         profile_image_url:
           type: string
           example: "https://via.placeholder.com/400x400"
-      required: [email, id]
+      required: [email, id, name]
     Influencer-Request:
+      required: [name]
       properties:
+        name: 
+          type: string
+          example: "Elon Musk"
         push_token:
           type: string
           example: dmYENnyg70jIlSRi7YSo4v:APA91bFQ0yXmSeS_BXGE8dXBgkQ2tcVlTqRTf8ozM_D4v_ARmzUeTLJtegIqTEU1Oq7cXoLjO_xYdhNWC11sPg2GQqGJb8qu7PSBp8DTY43LFZ6XClX837EDrIi-x-ZR2eEvJtZca9v7
-        full_name:
-          type: string
-          example: "Elon Musk"
         message_rule:
           type: string
           example: "everyone"
