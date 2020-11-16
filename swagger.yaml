@@ -84,7 +84,7 @@ components:
         has_card:
           type: boolean
           example: true
-        stripe_customer_id:
+        stripe_id:
           type: string
           example: cus_INYzkQuqeYvQWT
           
@@ -156,6 +156,9 @@ components:
       required: [email, id]
     Influencer-Request:
       properties:
+        push_token:
+          type: string
+          example: dmYENnyg70jIlSRi7YSo4v:APA91bFQ0yXmSeS_BXGE8dXBgkQ2tcVlTqRTf8ozM_D4v_ARmzUeTLJtegIqTEU1Oq7cXoLjO_xYdhNWC11sPg2GQqGJb8qu7PSBp8DTY43LFZ6XClX837EDrIi-x-ZR2eEvJtZca9v7
         full_name:
           type: string
           example: "Elon Musk"
@@ -472,7 +475,7 @@ paths:
         
      
      
-  /contacts/login:
+  /login:
     post:
       description: Authenticates a contact user
       summary: Authenticates a contact user
@@ -566,16 +569,14 @@ paths:
         "401":
           description: "No authenticated contact"
   
-  
-  /contacts/billing:
-    put:
+  /contact/stripe-checkout-session:
+    post:
       security:
         - bearerAuth: []
+      description: Creates a Stripe session from the contact which will be necessary to capture their payment credentials
+      summary:  Creates a Stripe session from the contact which will be necessary to capture their payment credentials
       tags:
-        - Contact Subscriptions
-      description: "Updates the contacts payment method, of which there is only one at any given time"
-      summary: "Updates the contacts payment method"
-      
+        - Contact Billing
       
       requestBody:
         required: true
@@ -584,28 +585,60 @@ paths:
             schema:
               type: object
               required:
-                - stripe_token
-                  card_brand
-                  card_last_4
+                - success_url
+                  cancel_url
               properties:
-                stripe_token:
+                success_url:
                   type: string
-                  description: The reusable stripe token representing a customer's payment method
-                  example: 'tok_usasdkjflxzcviuxcv'
-                card_brand:
+                  example: "http://localhost:8101/payment-success"
+                  description: The URL stripe should redirect to when payment information was successfully captured. It will include a sessionId parameter!
+                cancel_url:
                   type: string
-                  description: The brand of the payment method for recognition purposes
-                  example: "visa"
-                card_last_4:
-                  type: string
-                  description: The last 4 digits of the payment method for recognition purposes
-                  example: "6919"
-                
+                  example: "http://localhost:8101/home"
+                  description: The URL stripe should redirect to when payment information was not captured. Ideally, this will be the last page the contact was visiting 
                   
+                
       
       responses:
         "200":
-          description: A success message
+            description: "The authenticated contact"
+            content:
+              application/json:
+                schema:
+                  properties:
+                    session_id:
+                      type: string
+                      example: "cs_test_c13A2ER1ic5Ns7I8Ogonfo3H197dyG0XjvXxFjnrxSqMe6Zrm92IIxd8ms"
+                      
+  /contact/stripe-payment-method:
+    put:
+      security:
+        - bearerAuth: []
+      description: Sets the payment method on a customer, using the sessionId in the URL returned by stripe 
+      summary:  Sets the payment method on a customer, using the sessionId in the URL returned by stripe 
+      tags:
+        - Contact Billing
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - session_id
+              properties:
+                
+                session_id:
+                  type: string
+                  example: "cs_test_c13A2ER1ic5Ns7I8Ogonfo3H197dyG0XjvXxFjnrxSqMe6Zrm92IIxd8ms"
+                  description: The sessionId returned in the URL after Stripe captures the user's payment method. It will look like `{successUrl}/?sessionId=x`
+                  
+                
+      
+      responses:
+        "200":
+          description: A success message indicating the payment method has been set 
           content:
             application/json:
               schema: 
@@ -614,7 +647,7 @@ paths:
                   success:
                     type: boolean
                     enum: [true]
-  
+                    
   /contacts/subscriptions:
     
     get:
@@ -833,40 +866,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/influencer"
-
-  /influencer/push-notification:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - Push Notifications
-      summary: Accepts a push notification token from the frontend which will be associated with the influencer's account 
-      
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - push_notification_token
-              properties:
-                push_notification_token:
-                  type: string
-                  example: "dmYENnyg70jIlSRi7YSo4v:APA91bFQ0yXmSeS_BXGE8dXBgkQ2tcVlTqRTf8ozM_D4v_ARmzUeTLJtegIqTEU1Oq7cXoLjO_xYdhNWC11sPg2GQqGJb8qu7PSBp8DTY43LFZ6XClX837EDrIi-x-ZR2eEvJtZca9v7"
-                
-      
-      
-      responses:
-        "200":
-          description: "Success"
-          content: 
-            application/json:
-              schema:
-                 properties:
-                  success:
-                    type: boolean
-                    enum: [true]
 
   /influencer/custom-questions:
     get:
