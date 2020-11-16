@@ -160,6 +160,10 @@ components:
     Influencer-Request:
       required: [name]
       properties:
+        has_onboarded:
+          type: boolean
+          example: false
+          description: Whether this influencer has appropriately updated his profile 
         name: 
           type: string
           example: "Elon Musk"
@@ -174,7 +178,7 @@ components:
         gender:
           type: string
           example: "male"
-          enum: ["male", "female"]
+          enum: ["male", "female", "other"]
         
         dob:
           type: string
