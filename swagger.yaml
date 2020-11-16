@@ -475,7 +475,7 @@ paths:
         
      
      
-  /login:
+  /contact/login:
     post:
       description: Authenticates a contact user
       summary: Authenticates a contact user
@@ -647,7 +647,7 @@ paths:
                   success:
                     type: boolean
                     enum: [true]
-                    
+  
   /contacts/subscriptions:
     
     get:
