@@ -247,9 +247,9 @@ components:
       required: [title, question, influencer_id, created_at, updated_at]
             
     Stripe-Plan:
-      required: ["id", "price_id", "product_id", "name", "description", "amount"]
+      required: ["id", "price_id", "unit_amount", 'created_at', 'product', 'updated_at', 'type', 'stripe_product_id', 'nickname', 'currency', 'billing_scheme', 'active']
       properties:
-        "id":
+        id:
           type: number
           format: int64
           example: 33
@@ -257,26 +257,75 @@ components:
         price_id: 
           type: string
           example: "price_1Hl7AXGcPac2E5DndUfHl0KA"
-          
+          description: The stripe price id 
+        created_at:
+          type: string
+          format: date
+          example: "2020-11-17 02:20:47"
+        updated_at:
+          type: string
+          format: date
+          example: "2020-11-17 02:20:47"
+        currency: 
+          type: string
+          enum: ['usd']
+        nickname:
+          type: string
+          enum: [null]
+          description: Ignore this nickname, use the product nickname
+        unit_amount:
+          type: number
+          format: int64
+          description: Monthly cost in cents
+          example: 399
+        stripe_product_id:
+          type: number
+          format: int64
+          description: Internal, the foreign key to the product
+          example: 9
+        type: 
+          type: string
+          example: "recurring"
+          enum: ["recurring"]
+        product:
+          type: object
+          properties:
+            id:
+              type: number
+              format: int64
+              example: 9
+            prod_id: 
+              type: string
+              example: 'prod_ILom0t1pZRtkBj'
+            name:
+              type: string
+              example: 'Basic- 30'
+            description: 
+              type: string
+              example: '30 Messages Per Month'
+            messages:
+              type: number
+              format: int64
+              example: 30
+              description: The number of messages this plan offers. If absent, it's infinite
+            active:
+              type: boolean
+              enum: [true]
+            created_at:
+              type: string
+              format: date
+              example: "2020-11-17 02:20:47"
+            updated_at:
+              type: string
+              format: date
+              example: "2020-11-17 02:20:47"
+              
+            
         product_id: 
           type: string
           example: "prod_IH8AlVWwXSGxTw"
         
-        name: 
-          type: string
-          example: "Basic (30 Messages)"
-        description:
-          type: string
-          example: "Faster response time, special offers, early access to updates"
-    
-        
-        "amount": 
-          type: number
-          format: int64
-          description: This amount is in *cents* not dollars
-          example: 500
-          
-
+   
         
         
         
@@ -1075,10 +1124,13 @@ paths:
                     items:
                       allOf:
                         - $ref: "#/components/schemas/Stripe-Plan"
-    post: 
+   
+
+    put:
       tags: 
         - Influencer SMS Plans
-      summary: Adds a subscription plan to an influencer's acount
+      summary: Sets (overwrites) all plans that the influencer is offering
+      description: Sets (overwrites) all plans that the influencer is offering
       security:
         - bearerAuth: []
       requestBody:
@@ -1086,46 +1138,24 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - plan_id
-              properties:
-                plan_id:
-                  type: string
-                  example: "price_1HgZuI2eZvKYlo2Cn2NO2r6W"
-               
+              type: array
+              example: ['prod_ILom0t1pZRtkBj', 'prod_ILonwUBV6kWN2S']
+              description: List of plan ids that the influencer will offer
+              items:
+                type: string
+                description: A single plan id
       responses:
         "200":
           description: "Success"
           content: 
             application/json:
               schema:
-                 $ref: "#/components/schemas/Stripe-Plan"
-  /influencer/sms-plans/{planId}:
-    delete:
-      tags: 
-          - Influencer SMS Plans
-      summary: Adds a subscription plan to an influencer's acount
-      security:
-        - bearerAuth: []
-      parameters:
-      - in: path
-        name: planId
-        schema:
-          type: string
-        required: true
-        description: Id of the plan to remove from account
-      responses:
-        "200":
-          description: "Success"
-          content: 
-            application/json:
-              schema:
+                type: object
                 properties:
-                  success: 
+                  success:
                     type: boolean
                     enum: [true]
-  
+   
   /influencer/chats:
     get:
       tags: 
