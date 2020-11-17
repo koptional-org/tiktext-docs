@@ -929,6 +929,8 @@ paths:
                     type: boolean
                     enum: [true]
   
+                
+                    
   /influencer/available-phones:
     parameters:
       - in: query
@@ -970,6 +972,46 @@ paths:
                       example:  "+18477196508"
                       description: "The standard machine format for a phone number"
                   
+  /influencer/provision-phone:
+    post:
+      tags:
+        - Phone Allocation
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              required: [phone_number]
+              properties:
+                phone_number:
+                  type: string
+                  example: "+13158738808"
+                  
+      responses:
+        "400":
+          description: "Phone number unavailable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    enum: ["This phone number is unavailable"]
+                  status: 
+                    type: number
+                    enum: [400]
+        "200":
+          description: "Phone number successfully provisioned"
+          content:
+            application/json:
+              schema:
+                properties:
+                  twilio_phone_number: 
+                    type: string
+                    example: "+13158738808"
+                  twilio_phone_id:
+                    type: string
+                    example: "PN55c01a7f996603cb1cf6bf2aeb2c0d9d"
       
   
   # Token authentication
