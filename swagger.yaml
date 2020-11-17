@@ -974,6 +974,8 @@ paths:
                   
   /influencer/provision-phone:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - Phone Allocation
       requestBody:
