@@ -773,6 +773,24 @@ paths:
         - Contact Subscriptions
       description: Subscribes to a plan (requires payment info to be attached to the contact)
       summary: Subscribes to a plan (requires payment info to be attached to the contact)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stripe_price_id
+                  influencer_id
+              properties:
+                stripe_price_id:
+                  type: string
+                  example: "price_1Hl7AXGcPac2E5DndUfHl0KA"
+                  description: The Stripe-price ID for the product that the user is subscribing to
+                influencer_id:
+                  type: number
+                  example: 3
+                  description: The ID of the influencer for whom we're signing up
       responses:
         "400":
           description: "No payment information"
@@ -789,14 +807,6 @@ paths:
         - bearerAuth: []
       tags:
         - Contact Subscriptions
-      parameters:
-      - in: path
-        name: influencerId
-        schema:
-          type: string
-        required: true
-        description: Id of the influencer whose plan we're unsubscribing from
-        
       description: Unsubscribes from this influencers plan 
       summary: Unsubscribes from this influencers plan  (Must be subscribed to the plan in the first place)
       responses:
