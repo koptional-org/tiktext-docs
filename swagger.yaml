@@ -757,16 +757,23 @@ paths:
                 - email
                   password
                   phone
+                  name
               properties:
                 email:
                   type: string
                   description: the influencers's email address
+                  example: "jack@koptional.com"
                 password:
                   type: string
                   description: The influencer's password
                 phone: 
                   type: string
                   description: The influencer's phone number
+                  example: "8472125602"
+                name:
+                  type: string
+                  description: The influencer's full name
+                  example: "James VIdale"
       responses:
         "200":
           description: "A signup token with the influencer"
