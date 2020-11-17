@@ -375,6 +375,41 @@ components:
           $ref: "#/components/schemas/Message"
       required: [influencer_id, contact_id, last_message, created_at, updated_at]
     
+    Subscription:
+      description: "This is a subscription of a contact to an influencer, with a specific plan selected. Note: currently you could technically subscribe to multiple plans of the same influencer"
+      required: 
+         - id
+          contact_id
+          stripe_price_id
+          influencer_id
+          influencer
+      properties:
+        id: 
+          type: number
+          format: int64
+          example: 6
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        contact_id:
+          type: number
+          format: int64
+          example: 7
+        stripe_price_id:
+          type: string
+          example: price_1Hl7AXGcPac2E5DndUfHl0KA
+          description: The price_id in Stripe that the contact subscribed to
+        influencer_id:
+          type: number
+          format: int64
+          example: 3
+        influencer:
+          $ref: "#/components/schemas/influencer"
+    
+    
     InfluencerContact: 
       
       description: This is a contact, but the server will return the contacts plan_id *relative to the influencer*. So we treat this schema differently than the contact endpoints
@@ -399,6 +434,8 @@ components:
           created_at
           updated_at
           id
+
+    
     
     DashboardOverview:
       type: object
@@ -705,7 +742,7 @@ paths:
                     type: boolean
                     enum: [true]
   
-  /contacts/subscriptions:
+  /contact/subscriptions:
     
     get:
       security:
@@ -727,22 +764,13 @@ paths:
                     type: array
                     items:
                       allOf:
-                        - $ref: "#/components/schemas/influencer"
-              
-  /contacts/subscriptions/{influencerId}:
+                        - $ref: "#/components/schemas/Subscription"
+    
     post:
       security:
         - bearerAuth: []
       tags:
         - Contact Subscriptions
-      parameters:
-      - in: path
-        name: influencerId
-        schema:
-          type: string
-        required: true
-        description: Id of the influencer whose plan we're subscribing to
-        
       description: Subscribes to a plan (requires payment info to be attached to the contact)
       summary: Subscribes to a plan (requires payment info to be attached to the contact)
       responses:
@@ -753,14 +781,9 @@ paths:
           content:
             application/json:
              schema:
-              type: object
-              properties:
-                token:
-                  type: string
-                  description: the 
-                influencer:
-                  $ref: "#/components/schemas/influencer"
-                  
+              $ref: "#/components/schemas/Subscription"
+                                
+
     delete:
       security:
         - bearerAuth: []
