@@ -532,7 +532,7 @@ paths:
         
      
      
-  /contact/login:
+  /contacts/login:
     post:
       description: Authenticates a contact user
       summary: Authenticates a contact user
@@ -607,7 +607,7 @@ paths:
                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
                         
                   
-  /contacts/me:
+  /contact/me:
     get:
       security:
         - bearerAuth: []
@@ -791,7 +791,7 @@ paths:
                   enum: [true]
 
   
-  /influencer/signup: 
+  /influencers/signup: 
     post:
       tags:
         - Influencer Authentication
@@ -839,7 +839,7 @@ paths:
                   
   
 
-  /influencer/login:
+  /influencers/login:
     post:
       tags: 
         - Influencer Authentication
@@ -879,10 +879,10 @@ paths:
                 influencer:
                   $ref: "#/components/schemas/influencer"
 
-  /influencer/logout:
+  /logout:
     post:
       tags: 
-        - Influencer Authentication
+        - Logging Out - Any User
       summary: Logs a user out
       responses:
         "200":
@@ -1139,8 +1139,8 @@ paths:
           application/json:
             schema:
               type: array
-              example: ['prod_ILom0t1pZRtkBj', 'prod_ILonwUBV6kWN2S']
-              description: List of plan ids that the influencer will offer
+              example: ['price_1Hl795GcPac2E5DnesEJdKKt', 'price_1Hl795GcPac2E5DnesEJdKKt']
+              description: List of *price* ids that the influencer will offer
               items:
                 type: string
                 description: A single plan id
