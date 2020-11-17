@@ -57,6 +57,11 @@ components:
           type: integer
           example: 32
           format: int64
+          description: The contact's user id
+        contact_id: 
+          type: integer
+          example: 32
+          format: int64
         dob:
           type: string
           example: "01/20/1995"
@@ -468,9 +473,6 @@ components:
         updated_at:
           type: string
           format: date-time
-        stripe_id:
-          type: string
-          example: "asdufbkqiewhfasdfkln"
         plan_id: 
           type: string
           example: "plan_xzmvncbqiewladsf"
@@ -1357,7 +1359,7 @@ paths:
       
       tags:
         - Influencer contacts
-      summary: Returns a list of the influencer's contacts
+      summary: THE RESPONSE IS INACCURATE CURRENTLY
       security:
         - bearerAuth: []
       responses:
@@ -1372,8 +1374,32 @@ paths:
                   data:
                     type: array
                     items:
-                      allOf:
-                      - $ref: '#/components/schemas/InfluencerContact'
+                      type: object
+                      properties:
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                        contact_id:
+                          type: number
+                          format: int64
+                          description: The contact's id
+                          example: 32
+                        influencer_id:
+                          type: number
+                          format: int64
+                          description: The requesting influencer's id
+                          example: 21
+                        stripe_price_id: 
+                          type: string
+                          description: The ID in Stripe of the Product's Plan
+                          example: "price_1Hl7AXGcPac2E5DndUfHl0KA"
+                        contact:
+                          $ref: '#/components/schemas/Contact'
+                        price:
+                          $ref: '#/components/schemas/Stripe-Plan'
   /influencer/contacts/{contactId}:
     parameters:
         - in: path
