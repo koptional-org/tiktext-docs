@@ -1221,8 +1221,9 @@ paths:
               properties: 
                 plans:
                   type: array
+                  example: ['price_1Hl795GcPac2E5DnesEJdKKt', 'price_1Hl795GcPac2E5DnesEJdKKt']
                   items:
-                    example: ['price_1Hl795GcPac2E5DnesEJdKKt', 'price_1Hl795GcPac2E5DnesEJdKKt']
+                    
                     description: List of *price* ids that the influencer will offer
                     items:
                       type: string
